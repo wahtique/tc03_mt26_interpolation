@@ -1,0 +1,22 @@
+Lagrange(F_L,x,xi,yi):=block
+(
+	n:length(xi)-1,
+	L:0,
+	for i:1 thru n+1 step 1 do 
+	(
+		Li:1,
+		for j:1 thru n+1 step 1 do
+		(
+			if(is(notequal(i,j))) /* ~ not(i=j)*/
+			then (Li:Li*(x-xi[j])/(xi[i]-xi[j]))
+		),
+		L:yi[i]*Li+L,
+		print('"L"[i],"= ",Li)
+	),	
+	print("Polynome de Lagrange ",L),
+	define(FTemp(x),L),
+	F_L(x)::=FTemp(x),
+	display(F_L(x))
+)$
+
+
