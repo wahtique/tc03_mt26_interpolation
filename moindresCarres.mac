@@ -1,0 +1,42 @@
+/*Fonctions des moindres carres
+Auteur : William Veal Phan
+Date de création : 12/11/2016
+
+
+Fonction generant un polynome d'interpolation suivant la methode des moindres carres
+Arguments :
+Lx : une liste d'abscisses
+Ly : la liste des ordonnees correspondantes
+n : le nombre de points
+p : le degre souhaite du polynome d'interpolation, p < n
+Resultat :
+P(x) : le polynome d'interpolation
+*/
+
+moindresCarres(Lx,Ly,n,p):=block
+(
+	X:zeromatrix(n,p+1),
+	for k:1 thru n do
+	(
+		for j:1 thru p+1 do
+		(
+			X[k][j]:Lx[k]**(j-1)
+		)
+	),
+
+	Y:zeromatrix(n,1),
+	for k:1 thru n do
+	(
+		Y[k][1]:Ly[k]
+	),
+
+	B:invert(transpose(X).X).transpose(X).Y,
+	
+	Px:0,
+	for k:0 thru p do
+	(
+		Px : Px + B[k+1][1] * x**k
+	),
+
+	Px
+);
