@@ -1,4 +1,23 @@
-Lagrange(F_L,x,xi,yi):=block
+
+/* xi et yi sont deux listes de même dimension=n*/
+/*CreatePoints génère une liste de dimension n telle que:*/
+/* xi:[x1,x2,...xn]  yi:[y1,y2,...yn]*/ 
+/*CreatePoints(xi,yi)= [[x1,y1],[x2,y2]...[xn,yn]]*/
+
+CreatePoints(xi,yi):=block
+(
+	Atome:[0,0],
+	xy:[],
+	for i:1 thru length(xi) step 1 do
+	(
+	
+		xy:endcons(0,xy),
+		xy[i]:[xi[i],yi[i]]
+	),
+	xy
+);
+
+Lagrange(x,xi,yi):=block
 (
 	n:length(xi)-1,
 	L:0,
@@ -10,13 +29,37 @@ Lagrange(F_L,x,xi,yi):=block
 			if(is(notequal(i,j))) /* ~ not(i=j)*/
 			then (Li:Li*(x-xi[j])/(xi[i]-xi[j]))
 		),
-		L:yi[i]*Li+L,
-		print('"L"[i],"= ",Li)
+		L:yi[i]*Li+L
 	),	
+	define(F_L(x),L),
+	F_L(x)
+);
+
+
+PedagoLagrange(x,xi,yi):=block
+(
+	n:length(xi)-1,
+	L:0,
+	Li:[],
+	for i:1 thru n+1 step 1 do 
+	(
+		Li:endcons(1,Li),
+		for j:1 thru n+1 step 1 do
+		(
+			if(is(notequal(i,j))) /* ~ not(i=j)*/
+			then (Li[i]:Li[i]*(x-xi[j])/(xi[i]-xi[j]))
+		),
+		L:yi[i]*Li[i]+L,
+		print('"L"[i],"= ",Li[i])
+	),
 	print("Polynome de Lagrange ",L),
-	define(FTemp(x),L),
-	F_L(x)::=FTemp(x),
-	display(F_L(x))
-)$
+	define(F_L(x),L),
+	/*plot2d(cons(L,Li),[x,apply(min,xi),apply(max,xi)],[y,apply(min,yi),apply(max,yi)]),
+	*/
+	plot2d([[discrete,CreatePoints(xi,yi)],Li[1],L],[x,0,10],[style, points,lines],[point_type, asterisk]),
+	F_L(x)
+);
+
+
 
 

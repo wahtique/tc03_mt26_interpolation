@@ -1,0 +1,24 @@
+
+/* contruit N+1 points x0 ... xn*/
+/* Distribution régulière*/
+reglist(a,b,n):=block 
+(
+	x:[],
+	for i:0 thru n step 1 do
+	(
+		x:endcons(a+i*(b-a)/n,x)
+	),
+	x
+)$
+
+/* Distribution Tchebychev*/
+tchebylist(a,b,n):=block
+(
+	x:[],
+	for i:0 thru n step 1 do
+	(
+		x:endcons((a+b)/2-(b-a)/2*cos((i+1/2)*%pi/(n+1)),x)
+	),
+	x
+)$
+
