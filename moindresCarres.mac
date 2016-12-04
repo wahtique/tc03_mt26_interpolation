@@ -40,5 +40,6 @@ moindresCarres(Lx,Ly,n,p):=block
 		Px : Px + B[k+1][1] * x**k
 	),
 
-	Px
+	define(f(x),Px),
+	f(x)
 );

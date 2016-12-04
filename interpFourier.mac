@@ -33,6 +33,7 @@ interpFourier(Lx,Ly,n):=block
 		if (j=m and mod(n,2) = 0) then ajsum : ajsum/2,
 		Px : Px + ajsum*((2/n)*cos(j*x)) + bjsum*((2/n)*sin(j*x))
 	),
-Px
+define(f(x),Px),
+f(x)
 );
 
