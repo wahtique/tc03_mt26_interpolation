@@ -15,22 +15,23 @@ P(x) : le polynome d'interpolation
 
 moindresCarres(Lx,Ly,n,p):=block
 (
-	X:zeromatrix(n,p+1),
+	kill(x),
+	Xm:zeromatrix(n,p+1),
 	for k:1 thru n do
 	(
 		for j:1 thru p+1 do
 		(
-			X[k][j]:Lx[k]**(j-1)
+			if (j=1) then Xm[k][j]:1 else Xm[k][j]:Lx[k]**(j-1)
 		)
 	),
 
-	Y:zeromatrix(n,1),
+	Ym:zeromatrix(n,1),
 	for k:1 thru n do
 	(
-		Y[k][1]:Ly[k]
+		Ym[k][1]:Ly[k]
 	),
 
-	B:invert(transpose(X).X).transpose(X).Y,
+	B:invert(transpose(Xm).Xm).transpose(Xm).Ym,
 	
 	Px:0,
 	for k:0 thru p do

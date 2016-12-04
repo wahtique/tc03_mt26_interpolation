@@ -1,0 +1,31 @@
+/*
+Fonction d'interpolation trigonometrique
+Auteur : William Veal Phan
+Date de creation : 30/11/2016
+
+Fonction donnant le polynome de Fourier correspondant a la serie de point fournie
+Arguments :
+Lx : liste des abscisses
+Ly : liste ds ordonnees
+a : borne inferieure d'interpolation
+b : borne superieure
+n : nombre de points
+Resultat :
+Px : le polynome trigonometrique correspondant
+*/
+interpFourier(Lx,Ly,a,b,n):=block
+(
+	kill(x),
+	if mod(n,2)=0 then m:n/2 else m:(n-1)/2,
+	Px:0,
+	for j:0 thru m do
+	(
+		ajsum:0,
+		bjsum:0,
+		for k:0 thru n-1 do
+		(
+			ajsum : ajsum + Ly[]
+		)
+	)
+)
+
