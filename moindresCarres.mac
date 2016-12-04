@@ -1,8 +1,9 @@
 /*Fonctions des moindres carres
 Auteur : William Veal Phan
 Date de création : 12/11/2016
+*/
 
-
+/*
 Fonction generant un polynome d'interpolation suivant la methode des moindres carres
 Arguments :
 Lx : une liste d'abscisses
@@ -15,7 +16,7 @@ P(x) : le polynome d'interpolation
 
 moindresCarres(Lx,Ly,n,p):=block
 (
-	kill(x),
+	kill(x), /* si x est asttribué a une autre valeur la fonction bug. Faute d'avoir une meilleur solution, on kill x a chaque fois */
 	Xm:zeromatrix(n,p+1),
 	for k:1 thru n do
 	(
