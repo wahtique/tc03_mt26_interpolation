@@ -8,15 +8,15 @@ Fonction generant un polynome d'interpolation suivant la methode des moindres ca
 Arguments :
 Lx : une liste d'abscisses
 Ly : la liste des ordonnees correspondantes
-n : le nombre de points
 p : le degre souhaite du polynome d'interpolation, p < n
 Resultat :
 P(x) : le polynome d'interpolation
 */
 
-moindresCarres(Lx,Ly,n,p):=block
+moindresCarres(Lx,Ly,p):=block
 (
 	kill(x), /* si x est asttribué a une autre valeur la fonction bug. Faute d'avoir une meilleur solution, on kill x a chaque fois */
+	n: length(Lx),
 	Xm:zeromatrix(n,p+1),
 	for k:1 thru n do
 	(
