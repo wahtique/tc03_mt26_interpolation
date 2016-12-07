@@ -13,41 +13,34 @@ d : degre de du polynome de sortie souhaite
 Resultat :
 f(x) : la serie de Fourier ajustant la serie de points. 
 */
-interpFourier(Lx,Ly,d):=block
+interpFourier(Lx,Ly):=block
 (
 	kill(x,u),
 	n:length(Lx), /*pas de verification des erreurs pour linstant*/
 	m:0,
 
-	if mod(n,2)=0 then m:n/2 else m:(n+1)/2,
+	if mod(n,2)=0 then m:n/2 else m:(n-1)/2,
 
-	/* on "compresse" la fonction sur lintervalle -pi pi*/
-	if is(notequal(Lx[1],-%pi)) or is(notequal(Lx[n],%pi)) 
-	then 
-		L1:(Lx[n]-Lx[1])*(Lx+%pi)/(%pi*(2-1/m))+Lx[1]
-	else
-		L1:Lx
-	,
+	/* on "compresse" la fonction sur lintervalle 0,2pi*/
+	L1:(2*%pi)/(Lx[n]-Lx[1])*(Lx-Lx[1]),
 
-	P:bfloat((1/n)*sum(Ly[k],k,1,n)), /* premier terme a0 */
-	P:P+bfloat((1/m)*sum(Ly[k]*cos(d*L1[k]),k,1,n))*cos(d*u), /* ajout du dernier terme ad*cos(d*x) */
+	/* on approxime les coefficients en approximant l integrale de la fonction */
+
+	P:bfloat((1/m)*sum(Ly[k],k,1,n-1))/2, /* premier terme a0 / 2*/
+	P:P+bfloat((1/m)*sum(Ly[k]*cos(m*L1[k]),k,1,n-1))*cos(m*u)/2, /*ajout du dernier terme ad*cos(m*x) */ 
 
 	/*on ajoute mnt les termes de degre intermediaire*/
-	for j:1 thru d-1 do
+	for j:1 thru m do
 	(
-		aj:bfloat((1/m)*sum(Ly[k]*cos(j*L1[k]),k,1,n)),
-		bj:bfloat((1/m)*sum(Ly[k]*sin(j*L1[k]),k,1,n)),
+		aj:bfloat((1/m)*sum(Ly[k]*cos(j*L1[k]),k,1,n-1)),
+		bj:bfloat((1/m)*sum(Ly[k]*sin(j*L1[k]),k,1,n-1)),
 		P:P+aj*cos(j*u)+bj*sin(j*u)
 	),
 	define(g(u),P),
 
-	if is(notequal(Lx,L1))
-	then
-		/* on remet la fonction sur son intevalle de base */
-		define(f(x),g(%pi*(2-1/m)*(x-Lx[1])/(Lx[n]-Lx[1])-%pi))
-	else
-		define(f(x),g(x))
-	,
+
+	/* on remet la fonction sur son intevalle de base */
+	define(f(x),g((x-Lx[1])/(Lx[n]-Lx[1])*%pi*(2-1/m)-%pi)),
 	f(x)
 );
 
