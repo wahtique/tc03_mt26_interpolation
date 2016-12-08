@@ -9,38 +9,30 @@ Fonction donnant une approximation d une serie de points par un polynome trigono
 Arguments:
 Lx : liste des abscisses
 Ly : liste des ordonnees, de mm taille que Lx
-d : degre de du polynome de sortie souhaite
 Resultat :
 f(x) : la serie de Fourier ajustant la serie de points. 
 */
 interpFourier(Lx,Ly):=block
 (
-	kill(x,u),
+	kill(x),
 	n:length(Lx), /*pas de verification des erreurs pour linstant*/
 	m:0,
-
-	if mod(n,2)=0 then m:n/2 else m:(n-1)/2,
-
-	/* on "compresse" la fonction sur lintervalle 0,2pi*/
-	L1:(2*%pi)/(Lx[n]-Lx[1])*(Lx-Lx[1]),
+	T:Lx[n]-Lx[1],
+	w:2*%pi/T,
+	p:Lx[2]-Lx[1],
 
 	/* on approxime les coefficients en approximant l integrale de la fonction */
 
-	P:bfloat((1/m)*sum(Ly[k],k,1,n-1))/2, /* premier terme a0 / 2*/
-	P:P+bfloat((1/m)*sum(Ly[k]*cos(m*L1[k]),k,1,n-1))*cos(m*u)/2, /*ajout du dernier terme ad*cos(m*x) */ 
+	Px:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*p/2,k,1,n-1)), /* premier terme a0 */
 
 	/*on ajoute mnt les termes de degre intermediaire*/
-	for j:1 thru m do
+	for j:1 thru floor(n/2) do
 	(
-		aj:bfloat((1/m)*sum(Ly[k]*cos(j*L1[k]),k,1,n-1)),
-		bj:bfloat((1/m)*sum(Ly[k]*sin(j*L1[k]),k,1,n-1)),
-		P:P+aj*cos(j*u)+bj*sin(j*u)
+		aj:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*p*cos(w*j*Lx[k]),k,1,n-1)),
+		bj:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*p*sin(w*j*Lx[k]),k,1,n-1)),
+		Px:Px+aj*cos(w*j*x)+bj*sin(w*j*x)
 	),
-	define(g(u),P),
-
-
-	/* on remet la fonction sur son intevalle de base */
-	define(f(x),g((x-Lx[1])/(Lx[n]-Lx[1])*%pi*(2-1/m)-%pi)),
+	define(f(x),Px),
 	f(x)
 );
 
