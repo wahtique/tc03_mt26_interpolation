@@ -10,26 +10,24 @@ Arguments:
 Lx : liste des abscisses
 Ly : liste des ordonnees, de mm taille que Lx
 Resultat :
-f(x) : la serie de Fourier ajustant la serie de points. 
+f(x) : le polyn6ome trigonométrique ajustant la serie de points. 
 */
 interpFourier(Lx,Ly):=block
 (
 	kill(x),
 	n:length(Lx), /*pas de verification des erreurs pour linstant*/
-	m:0,
 	T:Lx[n]-Lx[1],
 	w:2*%pi/T,
-	p:Lx[2]-Lx[1],
 
 	/* on approxime les coefficients en approximant l integrale de la fonction */
 
-	Px:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*p/2,k,1,n-1)), /* premier terme a0 */
+	Px:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*(Lx[k+1]-Lx[k])/2,k,1,n-1)), /* premier terme a0 */
 
 	/*on ajoute mnt les termes de degre intermediaire*/
 	for j:1 thru floor(n/2) do
 	(
-		aj:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*p*cos(w*j*Lx[k]),k,1,n-1)),
-		bj:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*p*sin(w*j*Lx[k]),k,1,n-1)),
+		aj:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*(Lx[k+1]-Lx[k])*cos(w*j*Lx[k]),k,1,n-1)),
+		bj:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*(Lx[k+1]-Lx[k])*sin(w*j*Lx[k]),k,1,n-1)),
 		Px:Px+aj*cos(w*j*x)+bj*sin(w*j*x)
 	),
 	define(f(x),Px),
