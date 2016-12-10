@@ -3,22 +3,34 @@
 /* Distribution régulière*/
 reglist(a,b,n):=block 
 (
-	x:[],
+	l:[],	
 	for i:0 thru n step 1 do
 	(
-		x:endcons(a+i*(b-a)/n,x)
+		l:endcons(a+i*(b-a)/n,l)
 	),
-	x
+	l
 )$
 
 /* Distribution Tchebychev*/
 tchebylist(a,b,n):=block
 (
-	x:[],
+	l:[],
 	for i:0 thru n step 1 do
 	(
-		x:endcons((a+b)/2-(b-a)/2*cos((i+1/2)*%pi/(n+1)),x)
+		l:endcons((a+b)/2-(b-a)/2*cos((i+1/2)*%pi/(n+1)),l)
 	),
-	x
+	l
 )$
+
+
+specreglist(a,b,n):=block 
+(
+	l:[],	
+	for i:0 thru n-1 step 1 do
+	(
+		l:endcons(a+i*(b-a)/n,l)
+	),
+	l
+)$
+
 

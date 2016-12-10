@@ -17,8 +17,9 @@ CreatePoints(xi,yi):=block
 	xy
 );
 
-Lagrange(x,xi,yi):=block
+Lagrange(xi,yi):=block
 (
+	kill(x),
 	n:length(xi)-1,
 	L:0,
 	for i:1 thru n+1 step 1 do 
@@ -36,8 +37,9 @@ Lagrange(x,xi,yi):=block
 );
 
 
-PedagoLagrange(x,xi,yi):=block
+PedagoLagrange(xi,yi):=block
 (
+	kill(x),
 	n:length(xi)-1,
 	L:0,
 	Li:[],
@@ -56,7 +58,7 @@ PedagoLagrange(x,xi,yi):=block
 	define(F_L(x),L),
 	/*plot2d(cons(L,Li),[x,apply(min,xi),apply(max,xi)],[y,apply(min,yi),apply(max,yi)]),
 	*/
-	plot2d([[discrete,CreatePoints(xi,yi)],Li[1],L],[x,0,10],[style, points,lines],[point_type, asterisk]),
+	plot2d([[discrete,CreatePoints(xi,yi)],makelist(Li[i],i,1,n)],[x,0,10],[style, points,lines],[point_type, asterisk]),
 	F_L(x)
 );
 
