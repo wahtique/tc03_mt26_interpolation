@@ -15,7 +15,7 @@ P(x) : le polynome d'interpolation
 
 moindresCarres(Lx,Ly,d):=block
 (
-	kill(x), /* si x est asttribué a une autre valeur la fonction bug. Faute d'avoir une meilleur solution, on kill x a chaque fois */
+	kill(x,Px), /* si x est asttribué a une autre valeur la fonction bug. Faute d'avoir une meilleur solution, on kill x a chaque fois */
 	n : length(Lx),
 	Xm:zeromatrix(n,d+1),
 	for k:1 thru n do
@@ -32,7 +32,7 @@ moindresCarres(Lx,Ly,d):=block
 		Ym[k][1]:Ly[k]
 	),
 
-	B:invert(transpose(Xm).Xm).transpose(Xm).Ym,
+	B:bfloat(invert(transpose(Xm).Xm).transpose(Xm).Ym),
 	
 	Px:0,
 	for k:0 thru d do
@@ -40,6 +40,6 @@ moindresCarres(Lx,Ly,d):=block
 		Px : Px + B[k+1][1] * x**k
 	),
 
-	define(P(x),Px),
-	P(x)
+	define(Pmc(x),Px),
+	Pmc(x)
 );

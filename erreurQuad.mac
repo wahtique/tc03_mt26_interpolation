@@ -6,11 +6,30 @@ Auteur : William
 
 /*
 Arguments :
-f : fonction a interpoler
-g : fonction d'interpolation
-sous maxima, on donne les expressions de f(x) et g(x)
+u : fonction a interpoler
+v : fonction d'interpolation
 a,b : les bornes de l'intégration, a < b
 Resultat :
 err : un réel, l'erreur quadratique entre f et g
 */
-err(f(x)),g(x),a,b):=integrate((f(x)-g(x))**2,x,a,b);
+errQuadContinue(u,v,a,b):=integrate((u(x)-v(x))**2,x,a,b);
+
+/*
+Fonction donnant la forme discrète de l'erreur quadratique
+Arguments :
+u : fonction a interpoler
+v : fonction d interpolation
+Lx : la liste dea abscisses pour la comparaison
+*/
+errQuadDiscrete(u,v,Lx):=block
+(
+	kill(x),
+	err : 0,
+	for k : 1 thru length(Lx) do
+	(
+		x : Lx[k],
+		err : err + bfloat((u(t)-v(t))**2)
+	),
+	kill(x),
+	err
+);
