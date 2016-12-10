@@ -1,0 +1,16 @@
+/*
+Fonction du calcul d'erreur quadratique
+Date de création : 07/12/2016
+Auteur : William
+*/
+
+/*
+Arguments :
+f : fonction a interpoler
+g : fonction d'interpolation
+sous maxima, on donne les expressions de f(x) et g(x)
+a,b : les bornes de l'intégration, a < b
+Resultat :
+err : un réel, l'erreur quadratique entre f et g
+*/
+err(f(x)),g(x),a,b):=integrate((f(x)-g(x))**2,x,a,b);
