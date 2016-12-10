@@ -1,0 +1,207 @@
+/*
+Fichier rassemblant toutes les fonctions de notre projet afin d'eviter de multiplier les imports
+Auteurs : Robin Trioux, William Veal Phan
+Date de création : 10/12/2016
+*/
+
+/* ---------------------- DISTRIBUTIONS----------------------------*/
+
+/* contruit N+1 points x0 ... xn*/
+/* Distribution régulière*/
+reglist(a,b,n):=block 
+(
+	l:[],	
+	for i:0 thru n step 1 do
+	(
+		l:endcons(a+i*(b-a)/n,l)
+	),
+	l
+)$
+
+/* Distribution Tchebychev*/
+tchebylist(a,b,n):=block
+(
+	l:[],
+	for i:0 thru n step 1 do
+	(
+		l:endcons((a+b)/2-(b-a)/2*cos((i+1/2)*%pi/(n+1)),l)
+	),
+	l
+)$
+
+
+/* ------------- LAGRANGE -------------------------------- */
+
+
+/* xi et yi sont deux listes de même dimension=n*/
+/*CreatePoints génère une liste de dimension n telle que:*/
+/* xi:[x1,x2,...xn]  yi:[y1,y2,...yn]*/ 
+/*CreatePoints(xi,yi)= [[x1,y1],[x2,y2]...[xn,yn]]*/
+
+CreatePoints(xi,yi):=block
+(
+	Atome:[0,0],
+	xy:[],
+	for i:1 thru length(xi) step 1 do
+	(
+	
+		xy:endcons(0,xy),
+		xy[i]:[xi[i],yi[i]]
+	),
+	xy
+);
+
+Lagrange(x,xi,yi):=block
+(
+	n:length(xi)-1,
+	L:0,
+	for i:1 thru n+1 step 1 do 
+	(
+		Li:1,
+		for j:1 thru n+1 step 1 do
+		(
+			if(is(notequal(i,j))) /* ~ not(i=j)*/
+			then (Li:Li*(x-xi[j])/(xi[i]-xi[j]))
+		),
+		L:yi[i]*Li+L
+	),	
+	define(F_L(x),L),
+	F_L(x)
+);
+
+
+PedagoLagrange(x,xi,yi):=block
+(
+	n:length(xi)-1,
+	L:0,
+	Li:[],
+	for i:1 thru n+1 step 1 do 
+	(
+		Li:endcons(1,Li),
+		for j:1 thru n+1 step 1 do
+		(
+			if(is(notequal(i,j))) /* ~ not(i=j)*/
+			then (Li[i]:Li[i]*(x-xi[j])/(xi[i]-xi[j]))
+		),
+		L:yi[i]*Li[i]+L,
+		print('"L"[i],"= ",Li[i])
+	),
+	print("Polynome de Lagrange ",L),
+	define(F_L(x),L),
+	/*plot2d(cons(L,Li),[x,apply(min,xi),apply(max,xi)],[y,apply(min,yi),apply(max,yi)]),
+	*/
+	plot2d([[discrete,CreatePoints(xi,yi)],Li[1],L],[x,0,10],[style, points,lines],[point_type, asterisk]),
+	F_L(x)
+);
+
+/* ----------------------- L HERMITE ---------------------- */
+
+
+/* ----------------------- MOINDRES CARRES ---------------- */
+
+/*
+Fonction generant un polynome d'interpolation suivant la methode des moindres carres
+Arguments :
+Lx : une liste d'abscisses
+Ly : la liste des ordonnees correspondantes
+p : le degre souhaite du polynome d'interpolation, p < n
+Resultat :
+P(x) : le polynome d'interpolation
+*/
+
+moindresCarres(Lx,Ly,d):=block
+(
+	kill(x,Px), /* si x est asttribué a une autre valeur la fonction bug. Faute d'avoir une meilleur solution, on kill x a chaque fois */
+	n : length(Lx),
+	Xm:zeromatrix(n,d+1),
+	for k:1 thru n do
+	(
+		for j:1 thru d+1 do
+		(
+			if (j=1) then Xm[k][j]:1 else Xm[k][j]:Lx[k]**(j-1)
+		)
+	),
+
+	Ym:zeromatrix(n,1),
+	for k:1 thru n do
+	(
+		Ym[k][1]:Ly[k]
+	),
+
+	B:bfloat(invert(transpose(Xm).Xm).transpose(Xm).Ym),
+	
+	Px:0,
+	for k:0 thru d do
+	(
+		Px : Px + B[k+1][1] * x**k
+	),
+
+	define(Pmc(x),Px),
+	Pmc(x)
+);
+
+/* ----------------------------------TRIGONOMETRIQUE ---------------------------*/
+
+/*
+Fonction donnant une approximation d une serie de points par un polynome trigonometrique
+Arguments:
+Lx : liste des abscisses
+Ly : liste des ordonnees, de mm taille que Lx
+Resultat :
+f(x) : le polyn6ome trigonométrique ajustant la serie de points. 
+*/
+interpFourier(Lx,Ly):=block
+(
+	kill(x,Px),
+	n:length(Lx), /*pas de verification des erreurs pour linstant*/
+	T:Lx[n]-Lx[1],
+	w:2*%pi/T,
+
+	/* on approxime les coefficients en approximant l integrale de la fonction */
+
+	Px:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*(Lx[k+1]-Lx[k])/2,k,1,n-1)), /* premier terme a0 */
+
+	/*on ajoute mnt les termes de degre intermediaire*/
+	for j:1 thru floor(n/2) do
+	(
+		aj:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*(Lx[k+1]-Lx[k])*cos(w*j*Lx[k]),k,1,n-1)),
+		bj:bfloat((1/T)*sum((Ly[k]+Ly[k+1])*(Lx[k+1]-Lx[k])*sin(w*j*Lx[k]),k,1,n-1)),
+		Px:Px+aj*cos(w*j*x)+bj*sin(w*j*x)
+	),
+	define(f(x),Px),
+	f(x)
+);
+
+
+/* ----------------- ERREUR QUADRATIQUE -------------------------*/
+
+/*
+Arguments :
+u : fonction a interpoler
+v : fonction d'interpolation
+a,b : les bornes de l'intégration, a < b
+Resultat :
+err : un réel, l'erreur quadratique entre f et g
+*/
+errQuadContinue(u,v,a,b):=integrate((u(x)-v(x))**2,x,a,b);
+
+/*
+Fonction donnant la forme discrète de l'erreur quadratique
+Arguments :
+u : fonction a interpoler
+v : fonction d interpolation
+Lx : la liste dea abscisses pour la comparaison
+*/
+errQuadDiscrete(u,v,Lx):=block
+(
+	kill(x),
+	err : 0,
+	for k : 1 thru length(Lx) do
+	(
+		x : Lx[k],
+		err : err + bfloat((u(t)-v(t))**2)
+	),
+	kill(x),
+	err
+);
+

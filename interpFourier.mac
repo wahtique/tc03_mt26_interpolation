@@ -14,7 +14,7 @@ f(x) : le polyn6ome trigonométrique ajustant la serie de points.
 */
 interpFourier(Lx,Ly):=block
 (
-	kill(x),
+	kill(x,Px),
 	n:length(Lx), /*pas de verification des erreurs pour linstant*/
 	T:Lx[n]-Lx[1],
 	w:2*%pi/T,
