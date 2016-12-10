@@ -4,7 +4,12 @@ Auteurs : Robin Trioux, William Veal Phan
 Date de création : 10/12/2016
 */
 
+
+
+
 /* ------------ HELP ----------------*/
+
+
 
 helpInterpol():=block
 (
@@ -18,12 +23,18 @@ helpInterpol():=block
 	print("L hermite"),
 	print("moindresCarres(Lx,Ly,d) : interpolle uen série de points par un polynome de degré au plus d minimisant l'erreur quadrqtique"),
 	print("interpFourier(Lx,Ly) : interpolation par un polynome trigonometrique"),
-	print("errQuadContinue(u,v,a,b) : donne l'erreur dans la norme L²(a,b) entre u la fonction a interpoler et v l'interpolante"),
+	print("errQuadContinue(u,v,a,b) : donne l'erreur dans la norme L²(a,b) entre 2 fonctions u et v"),
 	print("errQuadDiscrete(u,v,Lx) : donne la somme du carre des erreurs entre u et v pour les abscisses Lx. On preferera utiliser cette fonction plutot que la precedente pour le calcul sous Maxima dans le cas ou le nomre de points a interpoler est trop important. "),
 	""
 )$
 
+
+
+
 /* ---------------------- DISTRIBUTIONS----------------------------*/
+
+
+
 
 /* contruit N+1 points x0 ... xn*/
 /* Distribution régulière*/
@@ -49,7 +60,10 @@ tchebylist(a,b,n):=block
 )$
 
 
+
 /* ------------- LAGRANGE -------------------------------- */
+
+
 
 
 /* xi et yi sont deux listes de même dimension=n*/
@@ -113,10 +127,18 @@ PedagoLagrange(x,xi,yi):=block
 	F_L(x)
 );
 
+
+
 /* ----------------------- L HERMITE ---------------------- */
 
 
+
+
+
 /* ----------------------- MOINDRES CARRES ---------------- */
+
+
+
 
 /*
 Fonction generant un polynome d'interpolation suivant la methode des moindres carres
@@ -159,7 +181,11 @@ moindresCarres(Lx,Ly,d):=block
 	Pmc(x)
 );
 
-/* ----------------------------------TRIGONOMETRIQUE ---------------------------*/
+
+
+/* -----------------------------TRIGONOMETRIQUE -----------------------*/
+
+
 
 /*
 Fonction donnant une approximation d une serie de points par un polynome trigonometrique
@@ -194,21 +220,26 @@ interpFourier(Lx,Ly):=block
 
 /* ----------------- ERREUR QUADRATIQUE -------------------------*/
 
+
+
 /*
 Arguments :
-u : fonction a interpoler
-v : fonction d'interpolation
+u : premiere fonction
+v : deuxieme fonction
 a,b : les bornes de l'intégration, a < b
 Resultat :
 err : un réel, l'erreur quadratique entre f et g
 */
-errQuadContinue(u,v,a,b):=integrate((u(x)-v(x))**2,x,a,b);
-
+errQuadContinue(u,v,a,b):=block
+(
+	kill(x),
+	integrate((u(x)-v(x))**2,x,a,b)
+);
 /*
 Fonction donnant la forme discrète de l'erreur quadratique
 Arguments :
-u : fonction a interpoler
-v : fonction d interpolation
+u : premiere fonction
+v : deuxieme fonction
 Lx : la liste dea abscisses pour la comparaison
 */
 errQuadDiscrete(u,v,Lx):=block
@@ -222,5 +253,5 @@ errQuadDiscrete(u,v,Lx):=block
 	),
 	kill(x),
 	err
-);
+)$
 
