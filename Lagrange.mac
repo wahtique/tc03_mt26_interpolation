@@ -17,8 +17,9 @@ CreatePoints(xi,yi):=block
 	xy
 );
 
-Lagrange(x,xi,yi):=block
+Lagrange(xi,yi):=block
 (
+	kill(x),
 	n:length(xi)-1,
 	L:0,
 	for i:1 thru n+1 step 1 do 
@@ -36,8 +37,9 @@ Lagrange(x,xi,yi):=block
 );
 
 
-PedagoLagrange(x,xi,yi):=block
+PedagoLagrange(xi,yi):=block
 (
+	kill(x),
 	n:length(xi)-1,
 	L:0,
 	Li:[],

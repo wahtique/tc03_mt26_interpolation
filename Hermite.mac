@@ -1,5 +1,7 @@
-Hermite(x,xi,yi):=block
+Hermite(xi,yi):=block
 (
+
+	kill(x),
 	n:length(xi),
 	H:0,
 	for i:1 thru n step 1 do 
