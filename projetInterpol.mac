@@ -4,6 +4,25 @@ Auteurs : Robin Trioux, William Veal Phan
 Date de création : 10/12/2016
 */
 
+/* ------------ HELP ----------------*/
+
+helpInterpol():=block
+(
+	print("Fonctions incluses dans le projet : "),
+	print("reglist(a,b,n) : construit une liste reguliere de n+1 points entre a et b"),
+	print("tchebylist(a,b,n) : genere une distribution de Tchebychev de n+1 points entre a et b"),
+	print("Pour les fonction dinterpolation, il faut utiliser la fonction define afin de recuperer une fonction et non une expression."),
+	print("Dans la suite, on considerera des distribution de points modelises par une list d'abscisses et une liste d'ordonnees."),
+	print("Lagrange(x,Lx,Ly) : x une variable muette, renvois une interpolation de Lagrange."),
+	print("PedagoLagrange(x,Lx,Ly) : version imagee de Lagrange"),
+	print("L hermite"),
+	print("moindresCarres(Lx,Ly,d) : interpolle uen série de points par un polynome de degré au plus d minimisant l'erreur quadrqtique"),
+	print("interpFourier(Lx,Ly) : interpolation par un polynome trigonometrique"),
+	print("errQuadContinue(u,v,a,b) : donne l'erreur dans la norme L²(a,b) entre u la fonction a interpoler et v l'interpolante"),
+	print("errQuadDiscrete(u,v,Lx) : donne la somme du carre des erreurs entre u et v pour les abscisses Lx. On preferera utiliser cette fonction plutot que la precedente pour le calcul sous Maxima dans le cas ou le nomre de points a interpoler est trop important. "),
+	""
+)$
+
 /* ---------------------- DISTRIBUTIONS----------------------------*/
 
 /* contruit N+1 points x0 ... xn*/
