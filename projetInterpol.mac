@@ -67,22 +67,6 @@ tchebylist(a,b,n):=block
 
 
 /* xi et yi sont deux listes de même dimension=n*/
-/*CreatePoints génère une liste de dimension n telle que:*/
-/* xi:[x1,x2,...xn]  yi:[y1,y2,...yn]*/ 
-/*CreatePoints(xi,yi)= [[x1,y1],[x2,y2]...[xn,yn]]*/
-
-CreatePoints(xi,yi):=block
-(
-	Atome:[0,0],
-	xy:[],
-	for i:1 thru length(xi) step 1 do
-	(
-	
-		xy:endcons(0,xy),
-		xy[i]:[xi[i],yi[i]]
-	),
-	xy
-);
 
 Lagrange(x,xi,yi):=block
 (
@@ -103,8 +87,10 @@ Lagrange(x,xi,yi):=block
 );
 
 
-PedagoLagrange(x,xi,yi):=block
+
+PedagoLagrange(xi,yi):=block
 (
+	kill(x),
 	n:length(xi)-1,
 	L:0,
 	Li:[],
@@ -121,11 +107,34 @@ PedagoLagrange(x,xi,yi):=block
 	),
 	print("Polynome de Lagrange ",L),
 	define(F_L(x),L),
-	/*plot2d(cons(L,Li),[x,apply(min,xi),apply(max,xi)],[y,apply(min,yi),apply(max,yi)]),
-	*/
-	plot2d([[discrete,CreatePoints(xi,yi)],Li[1],L],[x,0,10],[style, points,lines],[point_type, asterisk]),
+	FListTemp:makelist(yi[i]*Li[i],i,1,n+1),
+	FList:append([[discrete,xi,yi]],[L],FListTemp),
+	DiscreteStyle:[style,[points,2,1,1]],
+	/*En toute rigueure, nous devrions rajouter un modulo sur le i du [lines,2,i] car si le nombre de courbe dépasse le nombre de couleur, on aura un bug mais ce nombre atteint l'affichage perd son aspect "Pedagogique"*/
+	FonctionStyle:makelist([lines,2,i],i,2,n+3),
+	StyleList:append(DiscreteStyle,FonctionStyle),
+	LegendList:append([legend,"Donnees d'interpolation","L(x)"],makelist(string(sconcat("y",i,".L",i,"(x)")),i,1,n+1)),
+
+
+
+	
+	xmin:apply(min,xi),
+	xmax:apply(max,xi),
+	ymin:apply(min,yi),
+	ymax:apply(max,yi),
+	/*On élargi un peu les bornes pour l'affichage*/
+	k: 0.2*(xmax-xmin),
+	xmax:xmax+k/2,
+	xmin:xmin-k/2,
+	k: 0.2*(ymax-ymin),
+	ymax:ymax+k/2,
+	ymin:ymin-k/2,
+		
+	plot2d(FList,[x,xmin,xmax],[y,ymin,ymax],StyleList,LegendList),
+	kill(FListTemp,xmin,xmax,ymin,ymax),
 	F_L(x)
 );
+
 
 
 
@@ -143,28 +152,27 @@ Hermite(xi,yi):=block
 		Li:1,
 		for j:1 thru n step 1 do
 		(
-			if(is(notequal(i,j))) /* ~ not(i=j)*/
+			if(is(notequal(i,j)))
 			then (Li:Li*((x-xi[j])/(xi[i]-xi[j])))
 		),
 		qi:Li^2,
-		define(F_qi(x),qi),
+		define(F_qi(x),qi),/*Ce bloc sert uniquement à rendre plus lisible l'expression de H 11 lignes plus bas*/
 		define(F_Li(x),Li),
 		define(F_dLi(x),diff(Li,x)),
 		Hi:qi*(1-2*F_dLi(xi[i])*(x-xi[i])),
 		Ki:qi*(x-xi[i]),
 
-		if((i<(n)) and i#1 )
+		if((i<(n)) and i#1 ) /*On ne peut pas dériver sur les extremités
 		then
 		(
+			/*DeltaY est le taux de variation de y soit une approximation de f'(xi) ici nous faisons la moyenne des deux variations à droite et à gauche d'un point*/
 			DeltaY:((yi[i+1]-yi[i])/(xi[i+1]-xi[i])+(yi[i]-yi[i-1])/(xi[i]-xi[i-1]))/2,
-			/*Pi:(yi[i]+(x-xi[i])*((-50*xi[i]/(1+25*xi[i]^2))-F_Dq(xi[i])*yi[i])*qi+H),*/
 			
-			H:H+(yi[i]*Hi+DeltaY*Ki)
+			H:H+(yi[i]*Hi+DeltaY*Ki) /*Si pour une raison ou une autre nous connaissons f'(xi), il serait alors préférable de remplacer DeltaY par cette grandeur*/
 		)
 		
 	),
 	define(F_H(x),H),
-	kill(d),
 	F_H(x)
 );
 
