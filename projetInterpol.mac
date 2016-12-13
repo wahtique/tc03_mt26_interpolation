@@ -28,6 +28,17 @@ helpInterpol():=block
 	""
 )$
 
+/*ATTENTION: Pour pouvoir être utilisée comme une fonction dans maxima,
+	     il est nécessaire d'utiliser un define.
+	     Par exemple pour Lagrange il est nécessaire de déclarer une fonction de la façon suivante:
+
+	 _____________________________________________
+	|                                             |
+	|	define(f(x),Lagrange(xi,yi))$         |
+	|_____________________________________________|		
+
+*/
+
 
 
 
@@ -64,12 +75,11 @@ tchebylist(a,b,n):=block
 /* ------------- LAGRANGE -------------------------------- */
 
 
-
-
 /* xi et yi sont deux listes de même dimension=n*/
 
-Lagrange(x,xi,yi):=block
+Lagrange(xi,yi):=block 
 (
+	kill(x), /*On s'assure que x sera bien traitée */
 	n:length(xi)-1,
 	L:0,
 	for i:1 thru n+1 step 1 do 
@@ -110,7 +120,6 @@ PedagoLagrange(xi,yi):=block
 	FListTemp:makelist(yi[i]*Li[i],i,1,n+1),
 	FList:append([[discrete,xi,yi]],[L],FListTemp),
 	DiscreteStyle:[style,[points,2,1,1]],
-	/*En toute rigueure, nous devrions rajouter un modulo sur le i du [lines,2,i] car si le nombre de courbe dépasse le nombre de couleur, on aura un bug mais ce nombre atteint l'affichage perd son aspect "Pedagogique"*/
 	FonctionStyle:makelist([lines,2,i],i,2,n+3),
 	StyleList:append(DiscreteStyle,FonctionStyle),
 	LegendList:append([legend,"Donnees d'interpolation","L(x)"],makelist(string(sconcat("y",i,".L",i,"(x)")),i,1,n+1)),
@@ -162,7 +171,7 @@ Hermite(xi,yi):=block
 		Hi:qi*(1-2*F_dLi(xi[i])*(x-xi[i])),
 		Ki:qi*(x-xi[i]),
 
-		if((i<(n)) and i#1 ) /*On ne peut pas dériver sur les extremités
+		if((i<(n)) and i#1 ) /*On ne peut pas dériver sur les extremités */
 		then
 		(
 			/*DeltaY est le taux de variation de y soit une approximation de f'(xi) ici nous faisons la moyenne des deux variations à droite et à gauche d'un point*/
