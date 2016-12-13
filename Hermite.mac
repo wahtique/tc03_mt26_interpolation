@@ -22,9 +22,7 @@ Hermite(xi,yi):=block
 		if((i<(n)) and i#1 )
 		then
 		(
-			DeltaY:((yi[i+1]-yi[i])/(xi[i+1]-xi[i])+(yi[i]-yi[i-1])/(xi[i]-xi[i-1]))/2,
-			/*Pi:(yi[i]+(x-xi[i])*((-50*xi[i]/(1+25*xi[i]^2))-F_Dq(xi[i])*yi[i])*qi+H),*/
-			
+			DeltaY:((yi[i+1]-yi[i])/(xi[i+1]-xi[i])+(yi[i]-yi[i-1])/(xi[i]-xi[i-1]))/2,	
 			H:H+(yi[i]*Hi+DeltaY*Ki)
 		)
 		

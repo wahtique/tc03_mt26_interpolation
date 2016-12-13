@@ -58,7 +58,31 @@ PedagoLagrange(xi,yi):=block
 	define(F_L(x),L),
 	/*plot2d(cons(L,Li),[x,apply(min,xi),apply(max,xi)],[y,apply(min,yi),apply(max,yi)]),
 	*/
-	plot2d([[discrete,CreatePoints(xi,yi)],makelist(Li[i],i,1,n)],[x,0,10],[style, points,lines],[point_type, asterisk]),
+	/*plot2d([[discrete,CreatePoints(xi,yi)],makelist(Li[i],i,1,n)],[x,0,10],[style, points,lines],[point_type, asterisk]),*/
+	FListTemp:makelist(yi[i]*Li[i],i,1,n+1),
+	FList:append([[discrete,xi,yi]],[L],FListTemp),
+	DiscreteStyle:[style,[points,2,1,1]],
+	FonctionStyle:makelist([lines,2,i],i,2,n+3),
+	StyleList:append(DiscreteStyle,FonctionStyle),
+	LegendList:append([legend,"Donnees d'interpolation","L(x)"],makelist(string(sconcat("y",i,".L",i,"(x)")),i,1,n+1)),
+
+
+
+	
+	xmin:apply(min,xi),
+	xmax:apply(max,xi),
+	ymin:apply(min,yi),
+	ymax:apply(max,yi),
+	/*On élargi un peu les bornes pour l'affichage*/
+	k: 0.2*(xmax-xmin),
+	xmax:xmax+k/2,
+	xmin:xmin-k/2,
+	k: 0.2*(ymax-ymin),
+	ymax:ymax+k/2,
+	ymin:ymin-k/2,
+	
+	plot2d(FList,[x,xmin,xmax],[y,ymin,ymax],StyleList,LegendList),
+	kill(FListTemp,xmin,xmax,ymin,ymax),
 	F_L(x)
 );
 
