@@ -1,0 +1,33 @@
+Hermite(xi,yi):=block
+(
+
+	kill(x),
+	n:length(xi),
+	H:0,
+	for i:2 thru n-1 step 1 do 
+	(
+		Li:1,
+		for j:2 thru n-1 step 1 do
+		(
+			if(is(notequal(i,j))) /* ~ not(i=j)*/
+			then (Li:Li*((x-xi[j])/(xi[i]-xi[j])))
+		),
+		qi:Li^2,
+		define(F_qi(x),qi),
+		define(F_Li(x),Li),
+		define(F_dLi(x),diff(Li,x)),
+		Hi:qi*(1-2*F_dLi(xi[i])*(x-xi[i])),
+		Ki:qi*(x-xi[i]),
+
+		if((i<(n)) and i#1 )
+		then
+		(
+			DeltaY:((yi[i+1]-yi[i])/(xi[i+1]-xi[i])+(yi[i]-yi[i-1])/(xi[i]-xi[i-1]))/2,	
+			H:H+(yi[i]*Hi+DeltaY*Ki)
+		)
+		
+	),
+	define(F_H(x),H),
+	kill(d),
+	F_H(x)
+);
