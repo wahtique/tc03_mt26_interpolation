@@ -16,15 +16,17 @@ helpInterpol():=block
 	print("Fonctions incluses dans le projet : "),
 	print("reglist(a,b,n) : construit une liste reguliere de n+1 points entre a et b"),
 	print("tchebylist(a,b,n) : genere une distribution de Tchebychev de n+1 points entre a et b"),
-	print("Pour les fonction dinterpolation, il faut utiliser la fonction define afin de recuperer une fonction et non une expression."),
-	print("Dans la suite, on considerera des distribution de points modelises par une list d'abscisses et une liste d'ordonnees."),
-	print("Lagrange(x,Lx,Ly) : x une variable muette, renvois une interpolation de Lagrange."),
-	print("PedagoLagrange(x,Lx,Ly) : version imagee de Lagrange"),
-	print("L hermite"),
-	print("moindresCarres(Lx,Ly,d) : interpolle uen série de points par un polynome de degré au plus d minimisant l'erreur quadrqtique"),
-	print("interpFourier(Lx,Ly) : interpolation par un polynome trigonometrique"),
-	print("errQuadContinue(u,v,a,b) : donne l'erreur dans la norme L²(a,b) entre 2 fonctions u et v"),
-	print("errQuadDiscrete(u,v,Lx) : donne la somme du carre des erreurs entre u et v pour les abscisses Lx. On preferera utiliser cette fonction plutot que la precedente pour le calcul sous Maxima dans le cas ou le nomre de points a interpoler est trop important. "),
+	print("Pour les fonction dinterpolation, il faut utiliser la fonction define afin de recuperer une fonction et non une expression. Par exemple :"),
+	print("define(f(x),lagrange(xi,yi))$"),
+	print("Pas de controle d entree. In users we trust (lol)."),
+	print("Dans la suite, on considerera des distribution de points modelises par une list d'abscisses Lx et une liste d'ordonnees Ly."),
+	print("lagrange(Lx,Ly) : calcule le polynome d interpolation Lagrangien correspondant a la serie de points fournie en input"),
+	print("pedagolagrange(Lx,Ly) : version imagee de Lagrange"),
+	print("hermite(Lx,Ly) : interpolation de  Hermite de la serie de points fournie en entree"),
+	print("moindrescarres(Lx,Ly,d) : interpolle une serie de points par un polynome de degre au plus d et  minimisant l'erreur quadratique"),
+	print("interpfourier(Lx,Ly) : interpolation par un polynome trigonometrique"),
+	print("errquadcontinue(u,v,a,b) : donne l'erreur dans la norme L²(a,b) entre 2 fonctions u et v"),
+	print("errquaddiscrete(u,v,Lx) : donne la somme du carre des erreurs entre u et v pour les abscisses Lx. En pratique, on preferera utiliser celle-ci : on ne connait en general pas la fonction derriere la distribution de points, et errQuadContinue peut generer des erreurs a cause de la methode de calcul d intergrales qu'il utilise. "),
 	""
 )$
 
@@ -34,7 +36,7 @@ helpInterpol():=block
 
 	 _____________________________________________
 	|                                             |
-	|	define(f(x),Lagrange(xi,yi))$         |
+	|	define(f(x),lagrange(xi,yi))$         |
 	|_____________________________________________|		
 
 */
@@ -45,10 +47,20 @@ helpInterpol():=block
 /* ---------------------- DISTRIBUTIONS----------------------------*/
 
 
+/*
+Fonctions generant des distributions d abscisses.
+On peut ensuite, par exemple, appliquer une fonction mathematique a une de ces listes d abscisses pour generer une liste d' ordonnees.
+*/
 
-
-/* contruit N+1 points x0 ... xn*/
-/* Distribution régulière*/
+/* 
+Distribution régulière de a a b. Construit n+1 points x0 ... xn
+Arguments :
+a : borne  inferieure de la liste
+b : borne sup
+n : nombre de points -1 ( oui on peut faire plus clair )
+Resultat :
+l : une liste de reels, de a a b, de n+1 elements uniformement espaces
+*/
 reglist(a,b,n):=block 
 (
 	l:[],	
@@ -59,7 +71,15 @@ reglist(a,b,n):=block
 	l
 )$
 
-/* Distribution Tchebychev*/
+/* 
+Distribution Tchebychev de a a b de n+1 abscisses
+Arguements :
+a : borne inferieure de la distribution
+b : borne sup
+n : nombre de points -1
+Resultat :
+l : une liste de n+1 reels entre a et b. Les points sont plus espaces au milieu et plus proche sur les cotes.
+*/
 tchebylist(a,b,n):=block
 (
 	l:[],
@@ -75,9 +95,16 @@ tchebylist(a,b,n):=block
 /* ------------- LAGRANGE -------------------------------- */
 
 
-/* xi et yi sont deux listes de même dimension=n*/
+/*
+Construit un polynome d interpolation construit par la methode de Lagrange
+Arguments :
+xi : liste des absisses
+yi : liste des ordonnes
+Resultat :
+F_L(x) : un polynome
+*/
 
-Lagrange(xi,yi):=block 
+lagrange(xi,yi):=block 
 (
 	kill(x), /*On s'assure que x sera bien traitée */
 	n:length(xi)-1,
@@ -94,11 +121,18 @@ Lagrange(xi,yi):=block
 	),	
 	define(F_L(x),L),
 	F_L(x)
-);
+)$
 
-
-
-PedagoLagrange(xi,yi):=block
+/*
+Construit un polynome d interpolation construit par la methode de Lagrange.
+Affiche en plus des etapes intermediaires.
+Arguments :
+xi : liste des absisses
+yi : liste des ordonnes
+Resultat :
+F_L(x) : un polynome
+*/
+pedagolagrange(xi,yi):=block
 (
 	kill(x),
 	n:length(xi)-1,
@@ -123,10 +157,6 @@ PedagoLagrange(xi,yi):=block
 	FonctionStyle:makelist([lines,2,i],i,2,n+3),
 	StyleList:append(DiscreteStyle,FonctionStyle),
 	LegendList:append([legend,"Donnees d'interpolation","L(x)"],makelist(string(sconcat("y",i,".L",i,"(x)")),i,1,n+1)),
-
-
-
-	
 	xmin:apply(min,xi),
 	xmax:apply(max,xi),
 	ymin:apply(min,yi),
@@ -149,8 +179,15 @@ PedagoLagrange(xi,yi):=block
 
 /* ----------------------- HERMITE ---------------------- */
 
-
-Hermite(xi,yi):=block
+/*
+Construit un polynome d interpolation construit par la methode de Hermite ( un frenchy, ouais !)
+Arguments :
+xi : liste des absisses
+yi : liste des ordonnes
+Resultat :
+F_H(x) : un polynome. Possiblement casse sur les cotes. Possiblement un bug de notre fonction, ou aussi possiblement de Maxima ( non cest pas Maple, mais au moins cest gratuit )
+*/
+hermite(xi,yi):=block
 (
 
 	kill(x),
@@ -183,13 +220,11 @@ Hermite(xi,yi):=block
 	),
 	define(F_H(x),H),
 	F_H(x)
-);
+)$
 
 
 
 /* ----------------------- MOINDRES CARRES ---------------- */
-
-
 
 
 /*
@@ -202,7 +237,7 @@ Resultat :
 P(x) : le polynome d'interpolation
 */
 
-moindresCarres(Lx,Ly,d):=block
+moindrescarres(Lx,Ly,d):=block
 (
 	kill(x,Px), /* si x est asttribué a une autre valeur la fonction bug. Faute d'avoir une meilleur solution, on kill x a chaque fois */
 	n : length(Lx),
@@ -231,7 +266,7 @@ moindresCarres(Lx,Ly,d):=block
 
 	define(Pmc(x),Px),
 	Pmc(x)
-);
+)$
 
 
 
@@ -247,7 +282,7 @@ Ly : liste des ordonnees, de mm taille que Lx
 Resultat :
 f(x) : le polyn6ome trigonométrique ajustant la serie de points. 
 */
-interpFourier(Lx,Ly):=block
+interpfourier(Lx,Ly):=block
 (
 	kill(x,Px),
 	n:length(Lx), /*pas de verification des erreurs pour linstant*/
@@ -267,7 +302,7 @@ interpFourier(Lx,Ly):=block
 	),
 	define(f(x),Px),
 	f(x)
-);
+)$
 
 
 /* ----------------- ERREUR QUADRATIQUE -------------------------*/
@@ -275,6 +310,7 @@ interpFourier(Lx,Ly):=block
 
 
 /*
+Fonction donnant l erreur dans la norme L²(a,b). Inutile dans la plupart des cas pratiques. Cassee dans les autres. Et Maxima fait de droles de choses avec le calcul d integrales...Probleme reccurent : "rat" qui simplifie des valeurs en continue jusqu a crasher. Ou remplir toute la memoire allouee aux objets LISP ( possiblement lie a mon OS, ie. W10). Ne pas trop s y fier, meme si il semble calculer des valeurs pas trop mauvaises. 
 Arguments :
 u : premiere fonction
 v : deuxieme fonction
@@ -282,26 +318,32 @@ a,b : les bornes de l'intégration, a < b
 Resultat :
 err : un réel, l'erreur quadratique entre f et g
 */
-errQuadContinue(u,v,a,b):=block
+errquadqontinue(u,v,a,b):=block
 (
 	kill(x),
 	integrate((u(x)-v(x))**2,x,a,b)
 );
+
+
+
 /*
-Fonction donnant la forme discrète de l'erreur quadratique
+Fonction donnant la forme discrète de l'erreur quadratique. Preferons celle la a la precedente. Attention peut renvoyer des resulats absurdes suivantla distribution de points fournie en entree. 
+Un bon exemple serait son utilisation sur une interpolation de Lagrange : fournir la meme liste en entree pour calculer l erreur va renvoyer 0 vu que le polynome Lagrangien passe par TOUS ces points. Mais le polynome nest surement pas egal a la fonctions sous-jacente. 
 Arguments :
 u : premiere fonction
 v : deuxieme fonction
 Lx : la liste dea abscisses pour la comparaison
+Resultat :
+err : un reel, somme des erreurs quadratiques entre u(xi) et v(xi), avec les xi etant les elements de la liste Lx
 */
-errQuadDiscrete(u,v,Lx):=block
+errquaddiscrete(u,v,Lx):=block
 (
 	kill(x),
 	err : 0,
 	for k : 1 thru length(Lx) do
 	(
 		x : Lx[k],
-		err : err + bfloat((u(t)-v(t))**2)
+		err : err + bfloat((u(Lx[k])-v(Lx[k]))**2)
 	),
 	kill(x),
 	err
