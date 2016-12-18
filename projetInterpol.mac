@@ -18,7 +18,6 @@ helpInterpol():=block
 	print("tchebylist(a,b,n) : genere une distribution de Tchebychev de n+1 points entre a et b"),
 	print("Pour les fonction dinterpolation, il faut utiliser la fonction define afin de recuperer une fonction et non une expression. Par exemple :"),
 	print("define(f(x),lagrange(xi,yi))$"),
-	print("Pas de controle d entree. In users we trust (lol)."),
 	print("Dans la suite, on considerera des distribution de points modelises par une list d'abscisses Lx et une liste d'ordonnees Ly."),
 	print("lagrange(Lx,Ly) : calcule le polynome d interpolation Lagrangien correspondant a la serie de points fournie en input"),
 	print("pedagolagrange(Lx,Ly) : version imagee de Lagrange"),
@@ -26,7 +25,15 @@ helpInterpol():=block
 	print("moindrescarres(Lx,Ly,d) : interpolle une serie de points par un polynome de degre au plus d et  minimisant l'erreur quadratique"),
 	print("interpfourier(Lx,Ly) : interpolation par un polynome trigonometrique"),
 	print("errquadcontinue(u,v,a,b) : donne l'erreur dans la norme L²(a,b) entre 2 fonctions u et v"),
-	print("errquaddiscrete(u,v,Lx) : donne la somme du carre des erreurs entre u et v pour les abscisses Lx. En pratique, on preferera utiliser celle-ci : on ne connait en general pas la fonction derriere la distribution de points, et errQuadContinue peut generer des erreurs a cause de la methode de calcul d intergrales qu'il utilise. "),
+	print("errquaddiscrete(u,v,Lx) : donne la somme du carre des erreurs entre u et v pour les abscisses Lx. En pratique, on preferera utiliser celle-ci :","on ne connait en general pas la fonction derriere la distribution de points, et errQuadContinue peut generer des erreurs a cause de la methode de calcul d intergrales qu'il utilise. "),
+	print("nb: Aucun controle d entree n a ete implemente"),
+	
+	print("ATTENTION:"," Pour pouvoir utiliser les fonctions du projet comme un objet de type FONCTION dans (wx)maxima,il est necessaire d utiliser un define ou ''(...),","sans lequel la fonction d'interpolation retournera uniquement un objet de type EXPRESSION.","Par exemple pour Lagrange il est nessaire de declarer une fonction (Par exemple L) de la facon suivante:"),
+	print(" _________________________________________________________________________ "),
+	print("|                                                                         |"),
+	print("|     define(L(x),lagrange(xi,yi))$  ou L(x):=''(lagrange(xi,yi))$        |"),
+        print("|_________________________________________________________________________|"),
+	print("","Il vous sera alors possible de calculer Pour tout x, L(x)"),
 	""
 )$
 
@@ -63,6 +70,7 @@ l : une liste de reels, de a a b, de n+1 elements uniformement espaces
 */
 reglist(a,b,n):=block 
 (
+	[l],/*Permet à la liste de rester locale*/
 	l:[],	
 	for i:0 thru n step 1 do
 	(
@@ -82,6 +90,7 @@ l : une liste de n+1 reels entre a et b. Les points sont plus espaces au milieu 
 */
 tchebylist(a,b,n):=block
 (
+	[l],/*Permet à la liste de rester locale*/
 	l:[],
 	for i:0 thru n step 1 do
 	(
@@ -106,7 +115,10 @@ F_L(x) : un polynome
 
 lagrange(xi,yi):=block 
 (
-	kill(x), /*On s'assure que x sera bien traitée */
+	kill(x),
+	[n],
+	[L],
+	[Li],
 	n:length(xi)-1,
 	L:0,
 	for i:1 thru n+1 step 1 do 
@@ -119,8 +131,7 @@ lagrange(xi,yi):=block
 		),
 		L:yi[i]*Li+L
 	),	
-	define(F_L(x),L),
-	F_L(x)
+	L
 )$
 
 /*
@@ -135,6 +146,9 @@ F_L(x) : un polynome
 pedagolagrange(xi,yi):=block
 (
 	kill(x),
+	[n],
+	[L],
+	[Li],
 	n:length(xi)-1,
 	L:0,
 	Li:[],
@@ -170,8 +184,8 @@ pedagolagrange(xi,yi):=block
 	ymin:ymin-k/2,
 		
 	plot2d(FList,[x,xmin,xmax],[y,ymin,ymax],StyleList,LegendList),
-	kill(FListTemp,xmin,xmax,ymin,ymax),
-	F_L(x)
+	kill(FListTemp,FList,DiscreteStyle,FonctionStyle,StyleList,LegendList),
+	L
 );
 
 
@@ -205,21 +219,36 @@ hermite(xi,yi):=block
 		define(F_qi(x),qi),/*Ce bloc sert uniquement à rendre plus lisible l'expression de H 11 lignes plus bas*/
 		define(F_Li(x),Li),
 		define(F_dLi(x),diff(Li,x)),
-		Hi:qi*(1-2*F_dLi(xi[i])*(x-xi[i])),
+		Hi:qi*(1-2*F_dLi(xi[i])*(x-xi[i])),/*Se retrouve en dérivant H par rapport à x et en utilisant la propriété d'unicité des coefficients sur les polynomes*/
 		Ki:qi*(x-xi[i]),
 
 		if((i<(n)) and i#1 ) /*On ne peut pas dériver sur les extremités */
 		then
 		(
 			/*DeltaY est le taux de variation de y soit une approximation de f'(xi) ici nous faisons la moyenne des deux variations à droite et à gauche d'un point*/
-			DeltaY:((yi[i+1]-yi[i])/(xi[i+1]-xi[i])+(yi[i]-yi[i-1])/(xi[i]-xi[i-1]))/2,
-			
-			H:H+(yi[i]*Hi+DeltaY*Ki) /*Si pour une raison ou une autre nous connaissons f'(xi), il serait alors préférable de remplacer DeltaY par cette grandeur*/
-		)
+			DeltaY:((yi[i+1]-yi[i])/(xi[i+1]-xi[i])+(yi[i]-yi[i-1])/(xi[i]-xi[i-1]))/2 /*Approximation de la dérivée par le taux d'accroissement des points adjacents*/
+		),
+
+
+
+		if(i=0 and n>1) /*On force le calcul de dérivé sur les bords*/
+		then
+		(
+			DeltaY:((yi[2]-yi[1])/(xi[2]-xi[1]))
+		),
+
+		if(i=n)
+		then
+		(
+			DeltaY:(yi[n]-yi[n-1])/(xi[n]-xi[n-1])
+		),
+	
+		H:H+(yi[i]*Hi+DeltaY*Ki) /*Si pour une raison ou une autre nous connaissons f'(xi), il serait alors préférable de remplacer DeltaY par cette grandeur*/
+		
 		
 	),
-	define(F_H(x),H),
-	F_H(x)
+	kill(F_qi,F_Li,F_dLi,qi,Li,Ki),
+	H
 )$
 
 
